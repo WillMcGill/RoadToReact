@@ -10,6 +10,8 @@ const useSemiPersistantState = (key, initialState) =>{
     localStorage.setItem(key, value);
     }, [value, key]);
 
+    
+
   return [value, setValue];
 }
 const initialStories = [
@@ -30,6 +32,15 @@ const initialStories = [
     objectID: 1,
   },
 ];
+
+const getAsyncStories = () =>
+  new Promise(resolve =>
+    setTimeout(
+      () => resolve({ data: { stories: initialStories } }),
+      2000
+    )
+  );
+
 const App = () => {
 
   const handleSearch = event => {
@@ -38,8 +49,13 @@ const App = () => {
 
   const [searchTerm, setSearchTerm] = useSemiPersistantState('search', 'React');
 
-  const [stories, setStories] = React.useState(initialStories);
+  const [stories, setStories] = React.useState([]);
 
+  React.useEffect(() => {
+    getAsyncStories().then(result => {
+      setStories(result.data.stories);
+    });
+  }, []);
   const handleRemoveStory = item => {
     const newStories = stories.filter(
       story => item.objectID !== story.objectID
