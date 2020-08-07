@@ -13,7 +13,21 @@ const useSemiPersistantState = (key, initialState) =>{
     
 
   return [value, setValue];
-}
+};
+
+const storiesReducer = (state, action) =>{
+  switch(action.type){
+    case 'SET_STORIES' :
+      return action.payload;
+    case 'REMOVE_STORY' :
+      return state.filter(
+        story => action.paylaod.objectID !== story.objectID
+      );
+    default:
+      throw new Error()
+  }
+
+};
 const initialStories = [
   {
     title: 'React',
@@ -49,7 +63,10 @@ const App = () => {
 
   const [searchTerm, setSearchTerm] = useSemiPersistantState('search', 'React');
 
-  const [stories, setStories] = React.useState([]);
+  const [stories, dispatchStories] = React.useReducer(
+    storiesReducer,
+    []
+  );
 
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -61,19 +78,23 @@ const App = () => {
 
     getAsyncStories()
       .then(result => {
-        setStories(result.data.stories);
+        dispatchStories({
+          type: 'SET_STORIES',
+          payload: result.data.stories,
+        });
         setIsLoading(false)
     })
     .catch(()=>setIsError(true));
   }, []);
 
   const handleRemoveStory = item => {
-    const newStories = stories.filter(
-      story => item.objectID !== story.objectID
-    );
+   dispatchStories({
+     type: 'REMOVE_STORY',
+     payload: item,
+   });
 
-    setStories(newStories);
-  }
+  
+  };
 
   const searchedStories = stories.filter( story =>{
     return story.title.toLowerCase().includes(searchTerm.toLowerCase())
