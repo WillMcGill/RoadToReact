@@ -21,7 +21,7 @@ const storiesReducer = (state, action) =>{
       return action.payload;
     case 'REMOVE_STORY' :
       return state.filter(
-        story => action.paylaod.objectID !== story.objectID
+        story => action.payload.objectID !== story.objectID
       );
     default:
       throw new Error()
